@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { evaluateBudgetAlerts } from "#/server/budgets.server";
 import { eq, and, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "#/db";
@@ -533,6 +534,9 @@ export const saveReceiptAndLink = createServerFn({ method: "POST" })
         .update(schema.receipts)
         .set({ transaction_id: txnId })
         .where(eq(schema.receipts.id, receiptId));
+
+      // A new expense can push a budget over its limit.
+      await evaluateBudgetAlerts(userId);
 
       transaction = await db
         .select({

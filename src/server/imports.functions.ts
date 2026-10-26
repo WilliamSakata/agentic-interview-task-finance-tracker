@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { evaluateBudgetAlerts } from "#/server/budgets.server";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "#/db";
@@ -624,6 +625,8 @@ export const confirmImport = createServerFn({ method: "POST" })
     abortControllers.set(String(requestId), new AbortController());
     try {
       yield* streamConfirmImport(data, userId, requestId);
+      // Imported expenses can push budgets over their limit.
+      await evaluateBudgetAlerts(userId);
     } finally {
       abortControllers.delete(String(requestId));
     }
