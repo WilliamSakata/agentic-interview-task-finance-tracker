@@ -16,6 +16,7 @@ import { Route as TestRunSweepRouteImport } from './routes/test-run-sweep'
 import { Route as TestEmailsRouteImport } from './routes/test-emails'
 import { Route as TestCreateUserRouteImport } from './routes/test-create-user'
 import { Route as TestBackdateRouteImport } from './routes/test-backdate'
+import { Route as TestAddTransactionRouteImport } from './routes/test-add-transaction'
 import { Route as TestAddRuleRouteImport } from './routes/test-add-rule'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SetupRouteImport } from './routes/setup'
@@ -39,6 +40,7 @@ import { Route as AuthedImportRouteImport } from './routes/_authed/import'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedCategorizationRouteImport } from './routes/_authed/categorization'
 import { Route as AuthedCategoriesRouteImport } from './routes/_authed/categories'
+import { Route as AuthedBudgetsRouteImport } from './routes/_authed/budgets'
 import { Route as AuthedBillingRouteImport } from './routes/_authed/billing'
 import { Route as AuthedAccountsRouteImport } from './routes/_authed/accounts'
 import { Route as AuthedReceiptsScanRouteImport } from './routes/_authed/receipts/scan'
@@ -77,6 +79,11 @@ const TestCreateUserRoute = TestCreateUserRouteImport.update({
 const TestBackdateRoute = TestBackdateRouteImport.update({
   id: '/test-backdate',
   path: '/test-backdate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestAddTransactionRoute = TestAddTransactionRouteImport.update({
+  id: '/test-add-transaction',
+  path: '/test-add-transaction',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestAddRuleRoute = TestAddRuleRouteImport.update({
@@ -193,6 +200,11 @@ const AuthedCategoriesRoute = AuthedCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedBudgetsRoute = AuthedBudgetsRouteImport.update({
+  id: '/budgets',
+  path: '/budgets',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedBillingRoute = AuthedBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
@@ -228,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof SetupRoute
   '/terms': typeof TermsRoute
   '/test-add-rule': typeof TestAddRuleRoute
+  '/test-add-transaction': typeof TestAddTransactionRoute
   '/test-backdate': typeof TestBackdateRoute
   '/test-create-user': typeof TestCreateUserRoute
   '/test-emails': typeof TestEmailsRoute
@@ -237,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof VerifyEmailRoute
   '/accounts': typeof AuthedAccountsRoute
   '/billing': typeof AuthedBillingRoute
+  '/budgets': typeof AuthedBudgetsRoute
   '/categories': typeof AuthedCategoriesRoute
   '/categorization': typeof AuthedCategorizationRoute
   '/dashboard': typeof AuthedDashboardRoute
@@ -263,6 +277,7 @@ export interface FileRoutesByTo {
   '/setup': typeof SetupRoute
   '/terms': typeof TermsRoute
   '/test-add-rule': typeof TestAddRuleRoute
+  '/test-add-transaction': typeof TestAddTransactionRoute
   '/test-backdate': typeof TestBackdateRoute
   '/test-create-user': typeof TestCreateUserRoute
   '/test-emails': typeof TestEmailsRoute
@@ -272,6 +287,7 @@ export interface FileRoutesByTo {
   '/verify-email': typeof VerifyEmailRoute
   '/accounts': typeof AuthedAccountsRoute
   '/billing': typeof AuthedBillingRoute
+  '/budgets': typeof AuthedBudgetsRoute
   '/categories': typeof AuthedCategoriesRoute
   '/categorization': typeof AuthedCategorizationRoute
   '/dashboard': typeof AuthedDashboardRoute
@@ -300,6 +316,7 @@ export interface FileRoutesById {
   '/setup': typeof SetupRoute
   '/terms': typeof TermsRoute
   '/test-add-rule': typeof TestAddRuleRoute
+  '/test-add-transaction': typeof TestAddTransactionRoute
   '/test-backdate': typeof TestBackdateRoute
   '/test-create-user': typeof TestCreateUserRoute
   '/test-emails': typeof TestEmailsRoute
@@ -309,6 +326,7 @@ export interface FileRoutesById {
   '/verify-email': typeof VerifyEmailRoute
   '/_authed/accounts': typeof AuthedAccountsRoute
   '/_authed/billing': typeof AuthedBillingRoute
+  '/_authed/budgets': typeof AuthedBudgetsRoute
   '/_authed/categories': typeof AuthedCategoriesRoute
   '/_authed/categorization': typeof AuthedCategorizationRoute
   '/_authed/dashboard': typeof AuthedDashboardRoute
@@ -337,6 +355,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/terms'
     | '/test-add-rule'
+    | '/test-add-transaction'
     | '/test-backdate'
     | '/test-create-user'
     | '/test-emails'
@@ -346,6 +365,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/accounts'
     | '/billing'
+    | '/budgets'
     | '/categories'
     | '/categorization'
     | '/dashboard'
@@ -372,6 +392,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/terms'
     | '/test-add-rule'
+    | '/test-add-transaction'
     | '/test-backdate'
     | '/test-create-user'
     | '/test-emails'
@@ -381,6 +402,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/accounts'
     | '/billing'
+    | '/budgets'
     | '/categories'
     | '/categorization'
     | '/dashboard'
@@ -408,6 +430,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/terms'
     | '/test-add-rule'
+    | '/test-add-transaction'
     | '/test-backdate'
     | '/test-create-user'
     | '/test-emails'
@@ -417,6 +440,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/_authed/accounts'
     | '/_authed/billing'
+    | '/_authed/budgets'
     | '/_authed/categories'
     | '/_authed/categorization'
     | '/_authed/dashboard'
@@ -445,6 +469,7 @@ export interface RootRouteChildren {
   SetupRoute: typeof SetupRoute
   TermsRoute: typeof TermsRoute
   TestAddRuleRoute: typeof TestAddRuleRoute
+  TestAddTransactionRoute: typeof TestAddTransactionRoute
   TestBackdateRoute: typeof TestBackdateRoute
   TestCreateUserRoute: typeof TestCreateUserRoute
   TestEmailsRoute: typeof TestEmailsRoute
@@ -505,6 +530,13 @@ declare module '@tanstack/react-router' {
       path: '/test-backdate'
       fullPath: '/test-backdate'
       preLoaderRoute: typeof TestBackdateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/test-add-transaction': {
+      id: '/test-add-transaction'
+      path: '/test-add-transaction'
+      fullPath: '/test-add-transaction'
+      preLoaderRoute: typeof TestAddTransactionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/test-add-rule': {
@@ -668,6 +700,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedCategoriesRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/budgets': {
+      id: '/_authed/budgets'
+      path: '/budgets'
+      fullPath: '/budgets'
+      preLoaderRoute: typeof AuthedBudgetsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/billing': {
       id: '/_authed/billing'
       path: '/billing'
@@ -716,6 +755,7 @@ const AuthedReceiptsRouteWithChildren = AuthedReceiptsRoute._addFileChildren(
 interface AuthedRouteChildren {
   AuthedAccountsRoute: typeof AuthedAccountsRoute
   AuthedBillingRoute: typeof AuthedBillingRoute
+  AuthedBudgetsRoute: typeof AuthedBudgetsRoute
   AuthedCategoriesRoute: typeof AuthedCategoriesRoute
   AuthedCategorizationRoute: typeof AuthedCategorizationRoute
   AuthedDashboardRoute: typeof AuthedDashboardRoute
@@ -728,6 +768,7 @@ interface AuthedRouteChildren {
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAccountsRoute: AuthedAccountsRoute,
   AuthedBillingRoute: AuthedBillingRoute,
+  AuthedBudgetsRoute: AuthedBudgetsRoute,
   AuthedCategoriesRoute: AuthedCategoriesRoute,
   AuthedCategorizationRoute: AuthedCategorizationRoute,
   AuthedDashboardRoute: AuthedDashboardRoute,
@@ -765,6 +806,7 @@ const rootRouteChildren: RootRouteChildren = {
   SetupRoute: SetupRoute,
   TermsRoute: TermsRoute,
   TestAddRuleRoute: TestAddRuleRoute,
+  TestAddTransactionRoute: TestAddTransactionRoute,
   TestBackdateRoute: TestBackdateRoute,
   TestCreateUserRoute: TestCreateUserRoute,
   TestEmailsRoute: TestEmailsRoute,

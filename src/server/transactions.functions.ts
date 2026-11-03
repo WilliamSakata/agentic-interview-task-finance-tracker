@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { evaluateBudgetAlerts } from "#/server/budgets.server";
 import { eq, and, asc, desc, count, gte, lte, ilike, isNull, isNotNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "#/db";
@@ -303,6 +304,8 @@ export const createTransaction = createServerFn({ method: "POST" })
       source_ref: data.sourceRef || null,
     });
 
+    await evaluateBudgetAlerts(userId);
+
     return {
       id,
       account_id: data.accountId,
@@ -378,6 +381,9 @@ export const updateTransaction = createServerFn({ method: "POST" })
           eq(schema.transactions.user_id, userId),
         ),
       );
+
+    // Amount, date or category changes can push a budget over its limit.
+    await evaluateBudgetAlerts(userId);
 
     return { success: true };
   });

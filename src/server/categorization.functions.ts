@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { evaluateBudgetAlerts } from "#/server/budgets.server";
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "#/db";
@@ -292,6 +293,7 @@ export const applyRuleToExisting = createServerFn({ method: "POST" })
         );
       updated++;
     }
+    if (updated > 0) await evaluateBudgetAlerts(userId);
     return { success: true, updated };
   });
 
@@ -491,6 +493,9 @@ export const reCategorizeTransactions = createServerFn({ method: "POST" })
       }));
       await db.insert(schema.categorization_rules).values(aiRulesInsert);
     }
+
+    // Moving spending between categories can push budgets over.
+    if (updated > 0) await evaluateBudgetAlerts(userId);
 
     return { updated, aiCategorized, skipped };
   });

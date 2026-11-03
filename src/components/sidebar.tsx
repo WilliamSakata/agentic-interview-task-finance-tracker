@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { m } from "#/paraglide/messages";
+import { useBudgetsOverview } from "#/components/budget-alert-bar";
 
 
 interface NavItem {
@@ -66,6 +67,30 @@ function getNavItems(): NavItem[] {
             d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
           />
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
+        </svg>
+      ),
+    },
+    {
+      to: "/budgets",
+      label: m.nav_budgets(),
+      icon: (
+        <svg
+          className="size-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.8}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z"
+          />
         </svg>
       ),
     },
@@ -199,6 +224,9 @@ export function Sidebar({
   onClose: () => void;
 }) {
   const pathname = useLocation().pathname;
+  const { data: budgetsOverview } = useBudgetsOverview();
+  const overBudgetCount =
+    budgetsOverview?.budgets.filter((b) => b.isOver).length ?? 0;
 
   const handleNavClick = useCallback(() => {
     // Close sidebar on mobile after navigation
@@ -308,6 +336,14 @@ export function Sidebar({
                       {item.icon}
                     </span>
                     <span className="truncate">{item.label}</span>
+                    {item.to === "/budgets" && overBudgetCount > 0 && (
+                      <span
+                        data-testid="budgets-over-count"
+                        className="ml-auto rounded-full bg-red-600 text-white text-xs px-1.5 min-w-5 text-center"
+                      >
+                        {overBudgetCount}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );

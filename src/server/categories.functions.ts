@@ -2,6 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { eq, and, asc, count, sql, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "#/db";
+import {
+  deleteBudgetsForCategories,
+  evaluateBudgetAlerts,
+} from "#/server/budgets.server";
+import { ownedEntityExists } from "#/server/ownership.server";
 import { requireUserId } from "#/server/session";
 
 
@@ -223,6 +228,12 @@ export const deleteCategory = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const userId = await requireUserId();
 
+    // Ownership first, in one query: a foreign category must be
+    // indistinguishable from a missing one.
+    if (!(await ownedEntityExists("category", userId, data.id))) {
+      return { error: "Category not found" };
+    }
+
     // Collect all descendant category IDs (children, grandchildren, etc.)
     const allDescendantIds: string[] = [];
 
@@ -294,21 +305,49 @@ export const deleteCategory = createServerFn({ method: "POST" })
         );
     }
 
-    // Reset category_id on receipt_items that reference any of these categories
+    // Reset category_id on the user's receipt_items that reference any of
+    // these categories
     await db
       .update(schema.receipt_items)
       .set({ category_id: null })
-      .where(inArray(schema.receipt_items.category_id, allIdsToDelete));
+      .where(
+        and(
+          inArray(schema.receipt_items.category_id, allIdsToDelete),
+          inArray(
+            schema.receipt_items.receipt_id,
+            db
+              .select({ id: schema.receipts.id })
+              .from(schema.receipts)
+              .where(eq(schema.receipts.user_id, userId)),
+          ),
+        ),
+      );
 
     // Delete categorization_rules that reference any of these categories
     await db
       .delete(schema.categorization_rules)
-      .where(inArray(schema.categorization_rules.category_id, allIdsToDelete));
+      .where(
+        and(
+          inArray(schema.categorization_rules.category_id, allIdsToDelete),
+          eq(schema.categorization_rules.user_id, userId),
+        ),
+      );
+
+    // Budgets on deleted categories go with them (no FK cascade)
+    await deleteBudgetsForCategories(userId, allIdsToDelete);
 
     // Delete all descendant categories first, then the target
     await db
       .delete(schema.categories)
-      .where(inArray(schema.categories.id, allIdsToDelete));
+      .where(
+        and(
+          inArray(schema.categories.id, allIdsToDelete),
+          eq(schema.categories.user_id, userId),
+        ),
+      );
+
+    // Reassigned transactions can push the target's budgets over.
+    if (data.reassignToCategoryId) await evaluateBudgetAlerts(userId);
 
     return { success: true };
   });

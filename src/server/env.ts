@@ -27,6 +27,7 @@ const envSchema = z.object({
   STRIPE_PRICE_PRO: z.string().optional(),
   BILLING_PRO_SCANS_PER_MONTH: z.string().optional(),
   BILLING_FREE_MAX_ACCOUNTS: z.string().optional(),
+  BILLING_FREE_MAX_BUDGETS: z.string().optional(),
   TEST_MODE: z.string().optional(),
   CAPTCHA_ENABLED: z.string().optional(),
   EMAIL_PROVIDER: z.string().optional(),
@@ -90,6 +91,8 @@ export interface ValidatedEnv {
     proScansPerMonth: number;
     /** Accounts a free-plan user may have; Pro is unlimited. */
     freeMaxAccounts: number;
+    /** Category budgets a free-plan user may have; Pro is unlimited. */
+    freeMaxBudgets: number;
   };
 }
 
@@ -214,6 +217,13 @@ export function validateEnv(raw: Record<string, string | undefined>): ValidatedE
     throw new Error("BILLING_FREE_MAX_ACCOUNTS must be a positive integer.");
   }
 
+  const freeMaxBudgets = parsed.BILLING_FREE_MAX_BUDGETS
+    ? Number(parsed.BILLING_FREE_MAX_BUDGETS)
+    : 3;
+  if (!Number.isInteger(freeMaxBudgets) || freeMaxBudgets < 1) {
+    throw new Error("BILLING_FREE_MAX_BUDGETS must be a positive integer.");
+  }
+
   const logLevel = parsed.LOG_LEVEL || "info";
   if (!LOG_LEVELS.includes(logLevel as LogLevel)) {
     throw new Error(
@@ -252,6 +262,7 @@ export function validateEnv(raw: Record<string, string | undefined>): ValidatedE
       stripePricePro: parsed.STRIPE_PRICE_PRO,
       proScansPerMonth,
       freeMaxAccounts,
+      freeMaxBudgets,
     },
   };
 }

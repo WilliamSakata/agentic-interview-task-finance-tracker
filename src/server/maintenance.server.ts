@@ -1,3 +1,4 @@
+import { evaluateAllBudgetAlerts } from "#/server/budgets.server";
 import { runComplianceSweep } from "#/server/compliance.server";
 import { env } from "#/server/env";
 import { getLogger } from "#/server/logger";
@@ -21,7 +22,15 @@ export function ensureMaintenanceLoop(): void {
     runComplianceSweep().catch((error) =>
       getLogger().error({ err: error }, "compliance sweep failed"),
     );
+  // Safety net for over-budget emails: every spending write already
+  // evaluates alerts inline; this catches any path that does not.
+  const budgetSweep = () =>
+    evaluateAllBudgetAlerts().catch((error) =>
+      getLogger().error({ err: error }, "budget alert sweep failed"),
+    );
   void sweep();
+  void budgetSweep();
+  setInterval(budgetSweep, SWEEP_INTERVAL_MS).unref();
   // unref: the timer must never keep a shutting-down server process alive.
   setInterval(sweep, SWEEP_INTERVAL_MS).unref();
 }

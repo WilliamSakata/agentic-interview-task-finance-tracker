@@ -13,6 +13,7 @@ const Sidebar = lazy(() =>
 );
 
 import { getLocale } from "#/paraglide/runtime";
+import { BudgetAlertBar } from "#/components/budget-alert-bar";
 import { m } from "#/paraglide/messages";
 
 import appCss from "../styles.css?url";
@@ -215,6 +216,7 @@ function RootDocument() {
               </div>
 
               {!user.emailVerified && <VerifyEmailBanner />}
+              <BudgetAlertBar />
 
               {/* Page content */}
               <Outlet />
